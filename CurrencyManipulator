@@ -1,0 +1,80 @@
+package com.javarush.test.level26.lesson15.big01;// Created on 21.02.2016.
+
+import com.javarush.test.level26.lesson15.big01.exception.NotEnoughMoneyException;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class CurrencyManipulator {
+    String currencyCode;
+    Map<Integer, Integer> denominations = new HashMap<>();
+
+    public CurrencyManipulator(String currencyCode) {
+        this.currencyCode = currencyCode;
+    }
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public void addAmount(int denomination, int count){
+        if (denominations.containsKey(denomination)){
+            count += denominations.get(denomination);
+            denominations.put(denomination, count);
+        }
+        else
+            denominations.put(denomination, count);
+    }
+
+   public int getTotalAmount(){
+        int sum = 0;
+        for (Map.Entry<Integer, Integer> x: denominations.entrySet()){
+            sum += x.getKey() * x.getValue();
+        }
+        return sum;
+   }
+
+    public boolean hasMoney(){
+        return denominations.size() > 0;
+    }
+
+    public boolean isAmountAvailable(int expectedAmount){
+        return expectedAmount <= getTotalAmount();
+    }
+
+
+    public Map<Integer, Integer> withdrawAmount(int expectedAmount) throws NotEnoughMoneyException {
+        Map<Integer, Integer> sortedMap = new TreeMap<Integer, Integer>(new Comparator<Integer>() {
+            public int compare(Integer o1, Integer o2) {
+                return o2.compareTo(o1);
+            }
+        });
+        sortedMap.putAll(denominations);
+
+        Map<Integer, Integer> withdrawnAmount  = new HashMap<Integer, Integer>();
+
+        for (Map.Entry<Integer, Integer> x: sortedMap.entrySet()){
+            int currDenom = x.getKey();
+            int currNo = x.getValue();
+            int count = 0;
+            if (currDenom <= expectedAmount){
+                int noteCount = expectedAmount / currDenom;
+                if (currNo > 0){
+                    count = noteCount >= currNo ? currNo : noteCount;
+                    withdrawnAmount.put(currDenom, count);
+                    currNo = noteCount >= currNo ? 0 : currNo - noteCount;
+                    denominations.put(currDenom, currNo);
+                    expectedAmount -= count * currDenom;
+                }
+            }
+        }
+        if (expectedAmount > 0) {
+            denominations.putAll(sortedMap);
+            throw new NotEnoughMoneyException();
+        }
+
+        return withdrawnAmount;
+    }
+}
