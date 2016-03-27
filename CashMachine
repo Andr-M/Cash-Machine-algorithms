@@ -1,0 +1,28 @@
+package com.javarush.test.level26.lesson15.big01;// Created on 21.02.2016.
+
+import com.javarush.test.level26.lesson15.big01.command.CommandExecutor;
+import com.javarush.test.level26.lesson15.big01.exception.InterruptOperationException;
+import com.javarush.test.level26.lesson15.big01.exception.NotEnoughMoneyException;
+
+import java.util.*;
+
+public class CashMachine {
+    public static Operation operation;
+    public static final String RESOURCE_PATH = "com.javarush.test.level26.lesson15.big01.resources.";
+
+    public static void main(String[] args) throws NotEnoughMoneyException {
+        Locale.setDefault(Locale.ENGLISH);
+        try {
+            CommandExecutor.execute(Operation.LOGIN);
+            do {
+                operation = ConsoleHelper.askOperation();
+                CommandExecutor.execute(operation);
+            }
+            while (true);
+        }
+        catch (InterruptOperationException e){
+            ConsoleHelper.printExitMessage();
+        }
+
+    }
+}
