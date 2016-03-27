@@ -1,0 +1,28 @@
+package com.javarush.test.level26.lesson15.big01;// Created on 21.02.2016.
+
+import java.util.*;
+
+public class CurrencyManipulatorFactory {
+    static Map<String, CurrencyManipulator> curMap = new HashMap<>();
+
+    private CurrencyManipulatorFactory() {
+    }
+
+    public static CurrencyManipulator getManipulatorByCurrencyCode(String currencyCode){
+        if (curMap.containsKey(currencyCode))
+            return curMap.get(currencyCode);
+        else {
+            curMap.put(currencyCode, new CurrencyManipulator(currencyCode));
+            return curMap.get(currencyCode);
+        }
+    }
+
+    public static Collection<CurrencyManipulator> getAllCurrencyManipulators(){
+
+        List<CurrencyManipulator> currencyManipulators = new ArrayList<>();
+        for (Map.Entry<String, CurrencyManipulator> x : curMap.entrySet()){
+            currencyManipulators.add(x.getValue());
+        }
+        return currencyManipulators;
+    }
+}
