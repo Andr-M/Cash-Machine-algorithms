@@ -1,0 +1,118 @@
+package com.javarush.test.level26.lesson15.big01;// Created on 21.02.2016.
+
+import com.javarush.test.level26.lesson15.big01.exception.InterruptOperationException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ResourceBundle;
+
+public class ConsoleHelper {
+    static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    private static ResourceBundle res = ResourceBundle.getBundle(CashMachine.RESOURCE_PATH + "common_en");
+
+    public static void writeMessage(String message){
+        System.out.println(message);
+    }
+
+    public static void printExitMessage(){
+        writeMessage(res.getString("the.end"));
+    }
+
+    public static String readString() throws InterruptOperationException{
+        String str = "";
+        try {
+            str = reader.readLine();
+            if (str.equalsIgnoreCase("EXIT")) {
+                writeMessage(res.getString("the.end"));
+                throw new InterruptOperationException();
+            }
+        } catch (IOException e) {}
+
+        return str;
+    }
+
+    public static String askCurrencyCode() throws InterruptOperationException{
+        writeMessage(res.getString("choose.currency.code"));
+        String str = "";
+            boolean isNotCorrect = true;
+
+            while (isNotCorrect) {
+                str = readString();
+                if (str.length() != 3) {
+                    writeMessage(res.getString("invalid.data"));
+                    continue;
+                }
+                else if (str.matches(".*\\d.*")) {
+                    writeMessage(res.getString("invalid.data"));
+                    continue;
+                }
+                else if (str.matches(".*\\W.*")) {
+                    writeMessage(res.getString("invalid.data"));
+                    continue;
+                }
+
+                isNotCorrect = false;
+            }
+
+        return str.toUpperCase();
+    }
+
+    public static String[] getValidTwoDigits(String currencyCode) throws InterruptOperationException{
+        System.out.println(String.format(res.getString("choose.denomination.and.count.format"), currencyCode));
+        String str = "";
+        String[] line = null;
+            boolean isNotCorrect = true;
+            while (isNotCorrect) {
+                str = readString();
+                line = str.split(" ");
+                if (line.length != 2) {
+                    writeMessage(res.getString("invalid.data"));
+                    line = null;
+                    continue;
+                }
+                else if (line[0].matches(".*\\D+.*") || line[1].matches(".*\\D+.*")) {
+                    writeMessage(res.getString("invalid.data"));
+                    line = null;
+                    continue;
+                }
+                else if (Integer.parseInt(line[0]) <=0 || Integer.parseInt(line[1]) <=0) {
+                    writeMessage(res.getString("invalid.data"));
+                    line = null;
+                    continue;
+                }
+
+                isNotCorrect = false;
+            }
+
+        return line;
+    }
+
+    public static Operation askOperation() throws InterruptOperationException{
+        writeMessage(res.getString("choose.operation"));
+        writeMessage(res.getString("operation.INFO"));
+        writeMessage(res.getString("operation.DEPOSIT"));
+        writeMessage(res.getString("operation.WITHDRAW"));
+        writeMessage(res.getString("operation.EXIT"));
+        boolean isNotCorrect = true;
+        String str;
+        Operation chosenOperation = null;
+        while (isNotCorrect) {
+            try {
+                str = readString();
+                Integer code = Integer.parseInt(str);
+                chosenOperation = Operation.getAllowableOperationByOrdinal(code);
+                isNotCorrect = false;
+            }
+            catch (IllegalArgumentException e){
+                throw new IllegalArgumentException();
+            }
+            catch (Exception e) {
+                writeMessage(res.getString("invalid.data"));
+            }
+        }
+
+        return chosenOperation;
+    }
+
+}
